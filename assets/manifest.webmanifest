@@ -1,0 +1,14 @@
+{
+  "name": "Rainns Management",
+  "short_name": "Rainns",
+  "description": "Professional cleaning for homes, Airbnbs, and businesses.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf6ef",
+  "theme_color": "#faf6ef",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},
+    {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}
+  ]
+}
