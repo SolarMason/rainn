@@ -10,34 +10,95 @@
   const btn = document.getElementById('hamburger');
   const nav = document.getElementById('mobileNav');
   if(!btn || !nav) return;
-  btn.addEventListener('click',()=>{
-    const open = nav.classList.toggle('open');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    document.body.style.overflow = open ? 'hidden' : '';
-  });
+
+  let scrollY = 0;
+  const openMenu = () => {
+    scrollY = window.scrollY;
+    nav.classList.add('open');
+    nav.setAttribute('aria-hidden','false');
+    btn.setAttribute('aria-expanded','true');
+    document.body.classList.add('menu-open');
+    document.body.style.top = -scrollY + 'px';
+  };
+  const closeMenu = () => {
+    nav.classList.remove('open');
+    nav.setAttribute('aria-hidden','true');
+    btn.setAttribute('aria-expanded','false');
+    document.body.classList.remove('menu-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY);
+  };
+  const toggleMenu = () => nav.classList.contains('open') ? closeMenu() : openMenu();
+
+  btn.addEventListener('click', e => { e.preventDefault(); toggleMenu(); });
+
   // Close on link tap
-  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-    nav.classList.remove('open'); btn.setAttribute('aria-expanded','false'); document.body.style.overflow='';
-  }));
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+  // Explicit close button inside the menu (if present)
+  const closeBtn = nav.querySelector('.m-close');
+  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+
+  // ESC key
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && nav.classList.contains('open')) closeMenu(); });
+
+  // Close if user resizes past desktop breakpoint
+  const mq = window.matchMedia('(min-width: 960px)');
+  mq.addEventListener ? mq.addEventListener('change', e => { if (e.matches) closeMenu(); })
+                      : mq.addListener(e => { if (e.matches) closeMenu(); });
 })();
 
-/* ---------- Desktop mega-menu (click + hover, ESC closes) ---------- */
+/* ---------- Desktop mega-menu (hover + click + keyboard, ESC closes) ---------- */
 (function(){
   const items = document.querySelectorAll('.nav-item.has-mega');
+  if (!items.length) return;
   const closeAll = ()=>items.forEach(i=>i.setAttribute('aria-expanded','false'));
+  const openOnly = item => { closeAll(); item.setAttribute('aria-expanded','true'); };
+
+  // Detect a touch-primary device (fine-tuned but not required for correctness).
+  const isTouch = window.matchMedia('(hover:none), (pointer:coarse)').matches;
+
   items.forEach(item=>{
     const link = item.querySelector('.nav-link');
-    link.addEventListener('click',(e)=>{
+
+    // Click ALWAYS OPENS (never closes). Closing is handled by:
+    //   • click outside .nav-item.has-mega
+    //   • mouseleave (hover-capable devices)
+    //   • ESC key
+    // This avoids the classic "hover opened it, then my click closed it" bug on desktop.
+    link.addEventListener('click', e => {
       e.preventDefault();
-      const isOpen = item.getAttribute('aria-expanded')==='true';
-      closeAll();
-      item.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      e.stopPropagation();
+      const wasOpen = item.getAttribute('aria-expanded') === 'true';
+      if (wasOpen && isTouch) {
+        // On touch, a second tap on the same trigger should close it.
+        closeAll();
+      } else {
+        openOnly(item);
+      }
     });
-    item.addEventListener('mouseenter',()=>{closeAll();item.setAttribute('aria-expanded','true')});
-    item.addEventListener('mouseleave',()=>item.setAttribute('aria-expanded','false'));
+
+    // Keyboard: Enter/Space toggle, ArrowDown opens and focuses first item
+    link.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const wasOpen = item.getAttribute('aria-expanded') === 'true';
+        if (wasOpen) closeAll(); else openOnly(item);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        openOnly(item);
+        const first = item.querySelector('.mega a');
+        if (first) first.focus();
+      }
+    });
+
+    // Hover open/close on pointer:fine devices; harmless on touch
+    item.addEventListener('mouseenter', () => openOnly(item));
+    item.addEventListener('mouseleave', () => item.setAttribute('aria-expanded','false'));
   });
-  document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAll()});
-  document.addEventListener('click',e=>{if(!e.target.closest('.nav-item.has-mega')) closeAll()});
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+  document.addEventListener('click', e => { if (!e.target.closest('.nav-item.has-mega')) closeAll(); });
 })();
 
 /* ============================================================

@@ -35,7 +35,7 @@ A mobile-first, iOS-glassmorphic website for **Rainns Management** professional 
 
 ### Custom domain
 
-1. Buy a domain (e.g. `rainnsmanagement.com`).
+1. Buy a domain (e.g. `rainn.io`).
 2. Edit the `CNAME` file in this repo to contain only your domain (one line).
 3. In your DNS provider, add **A records** pointing `@` to GitHub Pages IPs:
    `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`

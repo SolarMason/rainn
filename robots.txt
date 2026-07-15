@@ -35,4 +35,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://rainnsmanagement.com/sitemap.xml
+Sitemap: https://rainn.io/sitemap.xml

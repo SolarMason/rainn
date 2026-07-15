@@ -172,31 +172,74 @@ section{padding:56px 0;position:relative}
 @media (min-width:960px){.hamburger{display:none}}
 .hamburger svg{width:22px;height:22px}
 
+/* Mobile nav MUST be a sibling of .site-header, not a child — the header
+   has backdrop-filter which creates a containing block for position:fixed
+   descendants and would clip the overlay to the 64px header height. */
 .mobile-nav{
-  position:fixed;inset:var(--header-h) 0 0 0;z-index:99;
-  background:rgba(250,246,239,.94);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
-  padding:24px 20px 40px;overflow-y:auto;
-  transform:translateY(-100%);transition:transform .3s var(--ease);
+  position:fixed;
+  top:var(--header-h); left:0; right:0; bottom:0;
+  z-index:200;
+  background:rgba(250,246,239,.98);
+  -webkit-backdrop-filter:saturate(180%) blur(24px);
+  backdrop-filter:saturate(180%) blur(24px);
+  padding:24px 20px calc(40px + env(safe-area-inset-bottom));
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  opacity:0;
+  transform:translateY(-12px);
+  transition:opacity .22s var(--ease), transform .22s var(--ease), visibility 0s linear .22s;
   visibility:hidden;
+  pointer-events:none;
 }
-.mobile-nav.open{transform:translateY(0);visibility:visible}
+.mobile-nav.open{
+  opacity:1;
+  transform:translateY(0);
+  visibility:visible;
+  pointer-events:auto;
+  transition:opacity .22s var(--ease), transform .22s var(--ease), visibility 0s linear 0s;
+}
+@media (min-width:960px){.mobile-nav{display:none}}
 .mobile-nav details{
-  background:var(--glass-bg-strong);border:1px solid var(--glass-border);border-radius:16px;
-  margin-bottom:10px;overflow:hidden;
+  background:var(--glass-bg-strong);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+  margin-bottom:10px;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(80,60,90,.06);
 }
 .mobile-nav summary{
   padding:16px 18px;font-weight:600;font-size:1rem;cursor:pointer;list-style:none;
-  display:flex;justify-content:space-between;align-items:center;min-height:44px;
+  display:flex;justify-content:space-between;align-items:center;min-height:52px;
+  user-select:none;-webkit-user-select:none;
 }
 .mobile-nav summary::-webkit-details-marker{display:none}
-.mobile-nav summary::after{content:"+";font-size:1.4rem;color:var(--muted);transition:transform .2s}
+.mobile-nav summary::after{content:"+";font-size:1.5rem;color:var(--blush-2);transition:transform .2s;line-height:1;font-weight:400}
 .mobile-nav details[open] summary::after{content:"–"}
-.mobile-nav .m-links{padding:6px 12px 14px}
+.mobile-nav .m-links{padding:4px 12px 14px}
 .mobile-nav .m-links a{
-  display:block;padding:12px 14px;border-radius:10px;color:var(--ink);font-size:.95rem;min-height:44px;
+  display:block;padding:14px 14px;border-radius:10px;color:var(--ink);font-size:.98rem;min-height:48px;
+  border-bottom:1px solid rgba(0,0,0,.04);
 }
-.mobile-nav .m-links a:hover{background:rgba(255,255,255,.7);text-decoration:none}
-.mobile-nav .m-cta{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.mobile-nav .m-links a:last-child{border-bottom:0}
+.mobile-nav .m-links a:hover,
+.mobile-nav .m-links a:active{background:rgba(255,255,255,.9);text-decoration:none;color:var(--sage-2)}
+.mobile-nav .m-cta{margin-top:20px;display:flex;flex-direction:column;gap:12px;padding-bottom:8px}
+.mobile-nav .m-cta .btn{min-height:52px;font-size:1rem}
+
+.mobile-nav .m-topbar{
+  display:flex;justify-content:flex-end;margin:-8px -4px 12px;
+}
+.mobile-nav .m-close{
+  width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  color:var(--ink);cursor:pointer;
+}
+.mobile-nav .m-close svg{width:20px;height:20px}
+.mobile-nav .m-close:hover{background:#fff;color:var(--blush-2)}
+
+/* Prevent background scroll when menu is open */
+body.menu-open{overflow:hidden;position:fixed;width:100%}
 
 /* -------------------- Hero -------------------- */
 .hero{padding:40px 0 40px;position:relative}
